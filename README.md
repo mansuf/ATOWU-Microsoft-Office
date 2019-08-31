@@ -11,5 +11,5 @@ It will Start the Service Automatically (if the Service is Stopped Microsoft Off
 
 <h3>WARNING</h3>
 There a few Problems in ATOWU for Microsoft Office Script<br>
-like, Services Controller Not Responding, and Delayed Starting Services<br>
+like, Services Controller Not Responding, and Delayed Starting or Stopping Services<br>
 From now, be patient while im fixing the bug in script :D
