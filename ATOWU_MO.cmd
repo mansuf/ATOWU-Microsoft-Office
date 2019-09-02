@@ -1,8 +1,36 @@
-@echo off
+::ATOWU for Microsoft Office v1.0
+
 ::STATUS : [SCRIPT RUNNING WELL & WORKING ON INTERFACE... & NEED IMPROVEMENTS]
 ::[UPDATE!!] From Now ATOWU will have a new Similliar Script Called "ATOWU for Microsoft Office"
+
+::Turning On Debug Mode if Specified File is Exist
+if exist "%temp%\ATOWU-MO.DEBUG" (
+    set ATOWUDEBUG=1
+    del /Q %temp%\ATOWU-MO.DEBUG
+    goto TITLE
+) else (
+    set ATOWUDEBUG=0
+    del /Q %temp%\ATOWU-MO.DEBUG
+    @echo off
+    cls
+)
+
+sc config bits start= disabled>NUL
+if errorlevel 1 goto error
+goto TITLE
+
+:error
+title Error
+echo Please, Run As Administrator to start the process
+pause>NUL
+
+
+:TITLE
+::Title ATOWU in Command-Line
 title ATOWU for Microsoft Office v1.0
+
 :Engine
+::Input the Variable to Return the Result
 set RESULT_ATOWU=NOT_FOUND
 set PID_MICROSOFT_EXCEL=NOT_FOUND
 set PID_MICROSOFT_ACCESS=NOT_FOUND
@@ -13,6 +41,9 @@ set PID_MICROSOFT_PUBLISHER=NOT_FOUND
 set PID_MICROSOFT_WORD=NOT_FOUND
 set STATUS_SERVICE=NOT_FOUND
 set STATUS_SERVICE_IN_ENGINE=NOT_FOUND
+
+
+::Checking Microsoft Office Tasklist
 for /f "tokens=4" %%b in ('sc query ClickToRunSvc ^| findstr STATE') do set STATUS_SERVICE=%%b
 for /f "tokens=2" %%b in ('tasklist ^| findstr EXCEL.EXE') do set PID_MICROSOFT_EXCEL=%%b
 for /f "tokens=2" %%b in ('tasklist ^| findstr MSACCESS.EXE') do set PID_MICROSOFT_ACCESS=%%b
@@ -76,12 +107,15 @@ echo Loop Engine
 goto Engine
 
 :START_MICROSOFT_SERVICE_ACCESS
+::if ATOWU found an Microsoft Office is Running, Start the Service
 set RESULT_STATUS_SERVICE_ACCESS=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_ACCESS=%%b
 goto CHECK_SERVICE_ACCESS
 
 :CHECK_SERVICE_ACCESS
+::Checking if Service is starting or Stopping 
+::ATOWU Will Prevent to Stop Service, if the Service is Starting either Stopping
 if %RESULT_STATUS_SERVICE_ACCESS%==Please (
     goto CHECK_SERVICE_ACCESS
 ) else (
@@ -89,6 +123,7 @@ if %RESULT_STATUS_SERVICE_ACCESS%==Please (
 )
 
 :CHECK_SERVICE_STATE_ACCESS
+::Checking Service Status
 set RESULT_STATE_SERVICE_IN_ACCESS=NOT_FOUND
 for /f "tokens=4" %%b in ('sc query ClickToRunSvc ^| findstr STATE') do set RESULT_STATE_SERVICE_IN_ACCESS=%%b
 if %RESULT_STATE_SERVICE_IN_ACCESS%==RUNNING goto CHECK_APP_ACCESS
@@ -96,6 +131,8 @@ if %RESULT_STATE_SERVICE_IN_ACCESS%==STOPPED goto ATTEMPT_1_START_SERVICE_ACCESS
 if %RESULT_STATE_SERVICE_IN_ACCESS%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_ACCESS
 
 :CHECK_APP_ACCESS
+::Checking App, if Stopped Automatically Stop the service
+::if Still Running ATOWU will keep Checking until it stopped (Loop Check)
 set PID_MICROSOFT_ACCESS=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr MSACCESS.EXE') do set PID_MICROSOFT_ACCESS=%%b
 if %PID_MICROSOFT_ACCESS%==NOT_FOUND (
@@ -279,6 +316,7 @@ if %PID_MICROSOFT_WORD%==NOT_FOUND (
 )
 
 :SHUTDOWN_SERVICE
+::Shutting Down Service Command
 set RESULT_STATUS_SERVICE=NOT_FOUND
 sc config ClickToRunSvc start=disabled>NUL
 for /f "tokens=7" %%b in ('net stop ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE=%%b
