@@ -3,6 +3,7 @@
 ::STATUS : [SCRIPT RUNNING WELL & WORKING ON INTERFACE... & NEED IMPROVEMENTS]
 ::[UPDATE!!] From Now ATOWU will have a new Similliar Script Called "ATOWU for Microsoft Office"
 
+
 ::Turning On Debug Mode if Specified File is Exist
 if exist "%temp%\ATOWU-MO.DEBUG" (
     set ATOWUDEBUG=1
@@ -14,18 +15,22 @@ if exist "%temp%\ATOWU-MO.DEBUG" (
     @echo off
     cls
 )
-
+echo [Status: Starting] ATOWU Engine is Starting...
+::This Command to Prevent Starting with Local Run (not Running as Administrator)
 sc config bits start= disabled>NUL
 if errorlevel 1 goto error
+echo [Status: Running] ATOWU Engine Successfully Running
 goto TITLE
 
 :error
 title Error
-echo Please, Run As Administrator to start the process
+echo [Status: Error] Please, Run As Administrator to start the process
 pause>NUL
+exit
 
 
 :TITLE
+echo [Status: Running] Checking Microsoft Office App and Service...
 ::Title ATOWU in Command-Line
 title ATOWU for Microsoft Office v1.0
 
@@ -107,6 +112,7 @@ echo Loop Engine
 goto Engine
 
 :START_MICROSOFT_SERVICE_ACCESS
+echo [Status: FOUND!!] Microsoft Access is Running, Starting Microsoft Office Service...
 ::if ATOWU found an Microsoft Office is Running, Start the Service
 set RESULT_STATUS_SERVICE_ACCESS=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
@@ -114,6 +120,7 @@ for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set R
 goto CHECK_SERVICE_ACCESS
 
 :CHECK_SERVICE_ACCESS
+echo [Status: Queued] Service is Starting or Stopping, Please Wait...
 ::Checking if Service is starting or Stopping 
 ::ATOWU Will Prevent to Stop Service, if the Service is Starting either Stopping
 if %RESULT_STATUS_SERVICE_ACCESS%==Please (
@@ -131,15 +138,21 @@ if %RESULT_STATE_SERVICE_IN_ACCESS%==STOPPED goto ATTEMPT_1_START_SERVICE_ACCESS
 if %RESULT_STATE_SERVICE_IN_ACCESS%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_ACCESS
 
 :CHECK_APP_ACCESS
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft Access to Shutting Down
+goto CHECK_APP_ACCESS_2
+
+:CHECK_APP_ACCESS_2
 ::Checking App, if Stopped Automatically Stop the service
 ::if Still Running ATOWU will keep Checking until it stopped (Loop Check)
 set PID_MICROSOFT_ACCESS=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr MSACCESS.EXE') do set PID_MICROSOFT_ACCESS=%%b
 if %PID_MICROSOFT_ACCESS%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft Access is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_ACCESS
+    goto CHECK_APP_ACCESS_2
 )
+
 
 :START_MICROSOFT_SERVICE_EXCEL
 set RESULT_STATUS_SERVICE_EXCEL=NOT_FOUND
