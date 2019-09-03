@@ -120,10 +120,10 @@ for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set R
 goto CHECK_SERVICE_ACCESS
 
 :CHECK_SERVICE_ACCESS
-echo [Status: Queued] Service is Starting or Stopping, Please Wait...
 ::Checking if Service is starting or Stopping 
 ::ATOWU Will Prevent to Stop Service, if the Service is Starting either Stopping
 if %RESULT_STATUS_SERVICE_ACCESS%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_ACCESS
 ) else (
     goto CHECK_SERVICE_STATE_ACCESS
@@ -155,6 +155,7 @@ if %PID_MICROSOFT_ACCESS%==NOT_FOUND (
 
 
 :START_MICROSOFT_SERVICE_EXCEL
+echo [Status: FOUND!!] Microsoft Excel is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_EXCEL=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_EXCEL=%%b
@@ -162,6 +163,7 @@ goto CHECK_SERVICE_EXCEL
 
 :CHECK_SERVICE_EXCEL
 if %RESULT_STATUS_SERVICE_EXCEL%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_EXCEL
 ) else (
     goto CHECK_SERVICE_STATE_EXCEL
@@ -175,12 +177,17 @@ if %RESULT_STATE_SERVICE_IN_EXCEL%==STOPPED goto ATTEMPT_1_START_SERVICE_EXCEL
 if %RESULT_STATE_SERVICE_IN_EXCEL%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_EXCEL
 
 :CHECK_APP_EXCEL
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft Excel to Shutting Down
+goto CHECK_APP_EXCEL_2
+
+:CHECK_APP_EXCEL_2
 set PID_MICROSOFT_EXCEL=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr EXCEL.EXE') do set PID_MICROSOFT_EXCEL=%%b
 if %PID_MICROSOFT_EXCEL%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft Excel is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_EXCEL
+    goto CHECK_APP_EXCEL_2
 )
 
 :START_MICROSOFT_SERVICE_ONENOTE
@@ -333,6 +340,7 @@ if %PID_MICROSOFT_WORD%==NOT_FOUND (
 set RESULT_STATUS_SERVICE=NOT_FOUND
 sc config ClickToRunSvc start=disabled>NUL
 for /f "tokens=7" %%b in ('net stop ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE=%%b
+echo [Status: Turned Off] The Service is Turned Off
 goto Engine
 
 
