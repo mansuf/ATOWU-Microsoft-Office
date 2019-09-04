@@ -285,6 +285,7 @@ if %PID_MICROSOFT_POWERPOINT%==NOT_FOUND (
 )
 
 :START_MICROSOFT_SERVICE_PUBLISHER
+echo [Status: FOUND!!] Microsoft Publisher is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_PUBLISHER=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_PUBLISHER=%%b
@@ -292,6 +293,7 @@ goto CHECK_SERVICE_PUBLISHER
 
 :CHECK_SERVICE_PUBLISHER
 if %RESULT_STATUS_SERVICE_PUBLISHER%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_PUBLISHER
 ) else (
     goto CHECK_SERVICE_STATE_PUBLISHER
@@ -305,12 +307,17 @@ if %RESULT_STATE_SERVICE_IN_PUBLISHER%==STOPPED goto ATTEMPT_1_START_SERVICE_PUB
 if %RESULT_STATE_SERVICE_IN_PUBLISHER%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_PUBLISHER
 
 :CHECK_APP_PUBLISHER
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft Publisher to Shutting Down
+goto CHECK_APP_PUBLISHER_2
+
+:CHECK_APP_PUBLISHER_2
 set PID_MICROSOFT_PUBLISHER=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr MSPUB.EXE') do set PID_MICROSOFT_PUBLISHER=%%b
 if %PID_MICROSOFT_PUBLISHER%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft Excel is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_PUBLISHER
+    goto CHECK_APP_PUBLISHER_2
 )
 
 :START_MICROSOFT_SERVICE_WORD
