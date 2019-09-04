@@ -191,6 +191,7 @@ if %PID_MICROSOFT_EXCEL%==NOT_FOUND (
 )
 
 :START_MICROSOFT_SERVICE_ONENOTE
+echo [Status: FOUND!!] Microsoft OneNote is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_ONENOTE=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_ONENOTE=%%b
@@ -198,6 +199,7 @@ goto CHECK_SERVICE_ONENOTE
 
 :CHECK_SERVICE_ONENOTE
 if %RESULT_STATUS_SERVICE_ONENOTE%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_ONENOTE
 ) else (
     goto CHECK_SERVICE_STATE_ONENOTE
@@ -211,15 +213,21 @@ if %RESULT_STATE_SERVICE_IN_ONENOTE%==STOPPED goto ATTEMPT_1_START_SERVICE_ONENO
 if %RESULT_STATE_SERVICE_IN_ONENOTE%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_ONENOTE
 
 :CHECK_APP_ONENOTE
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft OneNote to Shutting Down
+goto CHECK_APP_ONENOTE_2
+
+:CHECK_APP_ONENOTE_2
 set PID_MICROSOFT_ONENOTE=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr ONENOTE.EXE') do set PID_MICROSOFT_ONENOTE=%%b
 if %PID_MICROSOFT_ONENOTE%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft OneNote is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_ONENOTE
+    goto CHECK_APP_ONENOTE_2
 )
 
 :START_MICROSOFT_SERVICE_OUTLOOK
+echo [Status: FOUND!!] Microsoft Outlook is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_OUTLOOK=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_OUTLOOK=%%b
@@ -227,6 +235,7 @@ goto CHECK_SERVICE_OUTLOOK
 
 :CHECK_SERVICE_OUTLOOK
 if %RESULT_STATUS_SERVICE_OUTLOOK%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_OUTLOOK
 ) else (
     goto CHECK_SERVICE_STATE_OUTLOOK
@@ -240,12 +249,17 @@ if %RESULT_STATE_SERVICE_IN_OUTLOOK%==STOPPED goto ATTEMPT_1_START_SERVICE_OUTLO
 if %RESULT_STATE_SERVICE_IN_OUTLOOK%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_OUTLOOK
 
 :CHECK_APP_OUTLOOK
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft Outlook to Shutting Down
+goto CHECK_APP_OUTLOOK_2
+
+:CHECK_APP_OUTLOOK_2
 set PID_MICROSOFT_OUTLOOK=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr OUTLOOK.EXE') do set PID_MICROSOFT_OUTLOOK=%%b
 if %PID_MICROSOFT_OUTLOOK%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft Outlook is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_OUTLOOK
+    goto CHECK_APP_OUTLOOK_2
 )
 
 :START_MICROSOFT_SERVICE_POWERPOINT
@@ -314,7 +328,7 @@ goto CHECK_APP_PUBLISHER_2
 set PID_MICROSOFT_PUBLISHER=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr MSPUB.EXE') do set PID_MICROSOFT_PUBLISHER=%%b
 if %PID_MICROSOFT_PUBLISHER%==NOT_FOUND (
-    echo [Status: Shutting Down] Microsoft Excel is Closing, Shutting Down the Service
+    echo [Status: Shutting Down] Microsoft Publisher is Closing, Shutting Down the Service
     goto Engine
 ) else (
     goto CHECK_APP_PUBLISHER_2
