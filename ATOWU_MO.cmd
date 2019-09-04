@@ -249,6 +249,7 @@ if %PID_MICROSOFT_OUTLOOK%==NOT_FOUND (
 )
 
 :START_MICROSOFT_SERVICE_POWERPOINT
+echo [Status: FOUND!!] Microsoft PowerPoint is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_POWERPOINT=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_POWERPOINT=%%b
@@ -256,6 +257,7 @@ goto CHECK_SERVICE_POWERPOINT
 
 :CHECK_SERVICE_POWERPOINT
 if %RESULT_STATUS_SERVICE_POWERPOINT%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_POWERPOINT
 ) else (
     goto CHECK_SERVICE_STATE_POWERPOINT
@@ -269,12 +271,17 @@ if %RESULT_STATE_SERVICE_IN_POWERPOINT%==STOPPED goto ATTEMPT_1_START_SERVICE_PO
 if %RESULT_STATE_SERVICE_IN_POWERPOINT%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_POWERPOINT
 
 :CHECK_APP_POWERPOINT
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft PowerPoint to Shutting Down
+goto CHECK_APP_POWERPOINT_2
+
+:CHECK_APP_POWERPOINT_2
 set PID_MICROSOFT_POWERPOINT=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr POWERPNT.EXE') do set PID_MICROSOFT_POWERPOINT=%%b
 if %PID_MICROSOFT_POWERPOINT%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft PowerPoint is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_POWERPOINT
+    goto CHECK_APP_POWERPOINT_2
 )
 
 :START_MICROSOFT_SERVICE_PUBLISHER
@@ -307,6 +314,7 @@ if %PID_MICROSOFT_PUBLISHER%==NOT_FOUND (
 )
 
 :START_MICROSOFT_SERVICE_WORD
+echo [Status: FOUND!!] Microsoft Word is Running, Starting Microsoft Office Service...
 set RESULT_STATUS_SERVICE_WORD=NOT_FOUND
 sc config ClickToRunSvc start=auto>NUL
 for /f "tokens=7" %%b in ('net start ClickToRunSvc ^| findstr service') do set RESULT_STATUS_SERVICE_WORD=%%b
@@ -314,6 +322,7 @@ goto CHECK_SERVICE_WORD
 
 :CHECK_SERVICE_WORD
 if %RESULT_STATUS_SERVICE_WORD%==Please (
+    echo [Status: Queued] Service is Starting or Stopping, Please Wait...
     goto CHECK_SERVICE_WORD
 ) else (
     goto CHECK_SERVICE_STATE_WORD
@@ -327,12 +336,17 @@ if %RESULT_STATE_SERVICE_IN_WORD%==STOPPED goto ATTEMPT_1_START_SERVICE_WORD
 if %RESULT_STATE_SERVICE_IN_WORD%==NOT_FOUND goto ATTEMPT_1_START_SERVICE_WORD
 
 :CHECK_APP_WORD
+echo [Status: Waiting] The Service is Turned on, Waiting Microsoft Word to Shutting Down
+goto CHECK_APP_WORD_2
+
+:CHECK_APP_WORD_2
 set PID_MICROSOFT_WORD=NOT_FOUND
 for /f "tokens=2" %%b in ('tasklist ^| findstr WINWORD.EXE') do set PID_MICROSOFT_WORD=%%b
 if %PID_MICROSOFT_WORD%==NOT_FOUND (
+    echo [Status: Shutting Down] Microsoft Word is Closing, Shutting Down the Service
     goto Engine
 ) else (
-    goto CHECK_APP_WORD
+    goto CHECK_APP_WORD_2
 )
 
 :SHUTDOWN_SERVICE
